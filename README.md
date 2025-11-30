@@ -24,25 +24,6 @@ It supports English, Hindi, Kannada, and Telugu with different response tones (f
 - **No backend required** – fully front-end (HTML + CSS + JavaScript).  
 - **Responsive layout** built with Tailwind CSS and custom styling. :contentReference[oaicite:5]{index=5}  
 
----
-
-## 📂 Project Structure
-
-```text
-.
-├── index.html    # Main UI layout and structure
-├── style.css     # Custom styling for chat bubbles, layout, and animations
-├── data.js       # FAQ data + language-specific response templates
-├── script.js     # App logic: language detection, tone handling, chat flow
-
-##Tech Stack
-HTML5 – structure and layout
-CSS3 + Tailwind CSS + custom styles – design and responsiveness 
-index
-Vanilla JavaScript (ES6) – app logic, language detection, tone-based responses 
-script
-Font Awesome – icons for bot, user, controls
-
 ##How to Use
 Ask a question
 Type your question in the input box (e.g., “How do I fix battery draining quickly?”). 
@@ -63,3 +44,18 @@ Device not turning on
 Overheating
 Factory reset steps 
 data
+
+---
+
+## 📂 Project Structure
+
+```text
+.
+├── index.html    # Main UI layout and structure
+├── style.css     # Custom styling for chat bubbles, layout, and animations
+├── data.js       # FAQ data + language-specific response templates
+├── script.js     # App logic: language detection, tone handling, chat flow
+
+
+
+
