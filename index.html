@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #768ec0; /* neutral light gray instead of purple gradient */
+            min-height: 100vh;
+        }
+        
+        .glass-effect {
+            background: #ffffff;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(15, 23, 42, 0.06);
+        }
+        
+        .chat-bubble {
+            border-radius: 18px;
+            padding: 12px 18px;
+            margin: 8px 0;
+            max-width: 85%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .user-bubble {
+            background: #2563eb; /* solid professional blue */
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .bot-bubble {
+            background: white;
+            color: #111827;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 12px 18px;
+            background: white;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+            margin: 8px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        
+        .typing-dot {
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            display: inline-block;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .lang-option, .tone-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .lang-option:hover, .tone-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(15,23,42,0.08);
+        }
+        
+        .tone-option.active {
+            background: #2563eb;
+            color: white;
+            transform: scale(1.02);
+        }
+        
+        .faq-item {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .faq-item:hover {
+            background: #eff6ff;
+            transform: translateX(3px);
+        }
+        
+        .glow {
+            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.0); /* remove strong glow */
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-4xl glass-effect rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-white border-b border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
+                        <i class="fas fa-robot text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-semibold text-gray-900">FAQ Assistant</h1>
+                        <p class="text-gray-500 text-sm">Smart, multi-language support for device troubleshooting</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center text-xs text-gray-500 space-x-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1"></span>
+                        Connected to knowledge base
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6">
+            <!-- Chat Container -->
+            <div id="chat-container" class="h-80 overflow-y-auto mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div class="chat-bubble bot-bubble">
+                    <div class="flex items-start space-x-2">
+                        <div class="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-blue-600 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">FAQ Assistant</p>
+                            <p class="mt-1 text-gray-700 text-sm">
+                                Hello! I’m your Smart FAQ Assistant. I can help you with device issues in multiple languages.
+                                How can I assist you today?
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Language Selection -->
+                <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                    <h3 class="font-semibold text-gray-800 mb-3 flex items-center text-sm">
+                        <i class="fas fa-language text-blue-500 mr-2"></i>
+                        Response language
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        <div id="lang-auto" class="lang-option bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-medium flex items-center">
+                            <i class="fas fa-globe-americas mr-2 text-xs"></i>
+                            Auto-detect
+                        </div>
+                        <div id="lang-en" class="lang-option bg-white border border-gray-300 px-3 py-2 rounded-lg text-xs font-medium flex items-center">
+                            <span class="mr-2">🇺🇸</span>
+                            English
+                        </div>
+                        <div id="lang-hi" class="lang-option bg-white border border-gray-300 px-3 py-2 rounded-lg text-xs font-medium flex items-center">
+                            <span class="mr-2">🇮🇳</span>
+                            Hindi
+                        </div>
+                        <div id="lang-kn" class="lang-option bg-white border border-gray-300 px-3 py-2 rounded-lg text-xs font-medium flex items-center">
+                            <span class="mr-2">🇮🇳</span>
+                            Kannada
+                        </div>
+                        <div id="lang-te" class="lang-option bg-white border border-gray-300 px-3 py-2 rounded-lg text-xs font-medium flex items-center">
+                            <span class="mr-2">🇮🇳</span>
+                            Telugu
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tone Selection -->
+                <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                    <h3 class="font-semibold text-gray-800 mb-3 flex items-center text-sm">
+                        <i class="fas fa-sliders-h text-blue-500 mr-2"></i>
+                        Response tone
+                    </h3>
+                    <div class="grid grid-cols-3 gap-2 text-xs">
+                        <div id="tone-friendly" class="tone-option active bg-blue-600 text-white px-3 py-2 rounded-lg font-medium text-center">
+                            Friendly
+                        </div>
+                        <div id="tone-technical" class="tone-option bg-white border border-gray-300 px-3 py-2 rounded-lg font-medium text-center">
+                            Technical
+                        </div>
+                        <div id="tone-professional" class="tone-option bg-white border border-gray-300 px-3 py-2 rounded-lg font-medium text-center">
+                            Professional
+                        </div>
+                        <div id="tone-simplified" class="tone-option bg-white border border-gray-300 px-3 py-2 rounded-lg font-medium text-center">
+                            Simplified
+                        </div>
+                        <div id="tone-humorous" class="tone-option bg-white border border-gray-300 px-3 py-2 rounded-lg font-medium text-center">
+                            Humorous
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm mb-6">
+                <div class="flex space-x-3">
+                    <div class="flex-grow relative">
+                        <input type="text" id="user-input" placeholder="Type your question, e.g. 'How do I fix battery draining quickly?'" 
+                               class="w-full p-3 pr-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-800 text-sm">
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
+                            <i class="fas fa-keyboard text-sm"></i>
+                        </div>
+                    </div>
+                    <button id="submit-btn" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm py-3 px-5 rounded-xl shadow-sm transition duration-150 active:scale-95 flex items-center">
+                        <i class="fas fa-paper-plane mr-2 text-xs"></i>
+                        Send
+                    </button>
+                </div>
+            </div>
+
+            <!-- FAQ List -->
+            <div class="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold text-gray-800 flex items-center text-sm">
+                        <i class="fas fa-book-open text-blue-500 mr-2"></i>
+                        Knowledge base
+                    </h3>
+                    <div class="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full border border-blue-100">
+                        <span id="faq-count">5</span> FAQs
+                    </div>
+                </div>
+                <div id="faq-list" class="space-y-3">
+                    <!-- FAQs will be populated here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="bg-gray-50 border-t border-gray-200 p-4 text-center text-gray-500 text-xs">
+            <p>Smart FAQ Assistant • Multi-language device support</p>
+        </div>
+    </div>
+
+    <script>
+        // Sample FAQ data
+        const sampleFAQs = [
+            {
+                q: "How do I fix battery draining quickly?",
+                a: "To fix battery drain: 1) Reduce screen brightness, 2) Close unused apps running in background, 3) Turn off GPS/WiFi/Bluetooth when not needed, 4) Check for battery-intensive apps in settings, 5) Update your device software."
+            },
+            {
+                q: "My device won't turn on, what should I do?",
+                a: "If device won't turn on: 1) Charge for at least 30 minutes, 2) Try a different charger and cable, 3) Perform a forced restart (hold power + volume down for 10 seconds), 4) Check for physical damage, 5) Visit service center if issue persists."
+            },
+            {
+                q: "How to improve battery life?",
+                a: "Improve battery life by: 1) Using battery saver mode, 2) Limiting background app refresh, 3) Reducing auto-lock time, 4) Disabling unnecessary notifications, 5) Keeping device updated, 6) Avoiding extreme temperatures."
+            },
+            {
+                q: "Why is my phone overheating?",
+                a: "Phone overheating causes: 1) Heavy gaming/video usage, 2) Poor signal strength, 3) Faulty battery, 4) Running too many apps, 5) Direct sunlight exposure. Solutions: Close apps, remove case, avoid usage while charging, update software."
+            },
+            {
+                q: "How to reset my device to factory settings?",
+                a: "Factory reset steps: 1) Backup your data, 2) Go to Settings > System > Reset, 3) Select 'Factory data reset', 4) Confirm and enter your password, 5) Device will restart and erase all data. Warning: This cannot be undone!"
+            }
+        ];
+
+        const languageMap = {
+            'en': 'English',
+            'hi': 'Hindi', 
+            'kn': 'Kannada',
+            'te': 'Telugu'
+        };
+
+        const batteryResponses = {
+            'en': "I'd be happy to help with battery issues! For quick battery drain: 1) Lower screen brightness, 2) Close background apps, 3) Turn off unused connections like WiFi/GPS, 4) Update your device software, and 5) Check for battery-hungry apps in settings. If the problem continues, your battery might need replacement.",
+            'hi': "मैं बैटरी की समस्या में आपकी मदद कर सकता हूं! तेजी से बैटरी ड्रेन के लिए: 1) स्क्रीन की चमक कम करें, 2) बैकग्राउंड ऐप्स बंद करें, 3) WiFi/GPS जैसे अन्य कनेक्शन बंद करें, 4) अपने डिवाइस का सॉफ्टवेयर अपडेट करें, और 5) सेटिंग्स में बैटरी खाने वाले ऐप्स चेक करें। अगर समस्या बनी रहती है, तो आपकी बैटरी को बदलने की जरूरत हो सकती है।",
+            'kn': "ನಾನು ಬ್ಯಾಟರಿ ಸಮಸ್ಯೆಗಳಲ್ಲಿ ನಿಮಗೆ ಸಹಾಯ ಮಾಡಲು ಸಂತೋಷಪಡುತ್ತೇನೆ! ತ್ವರಿತ ಬ್ಯಾಟರಿ ಡ್ರೈನ್ಗಾಗಿ: 1) ಸ್ಕ್ರೀನ್ ಬ್ರೈಟ್ನೆಸ್ ಕಡಿಮೆ ಮಾಡಿ, 2) ಹಿನ್ನೆಲೆ ಆ್ಯಪ್ಗಳನ್ನು ಮುಚ್ಚಿ, 3) WiFi/GPS ನಂತರದ ಬಳಕೆಯಿಲ್ಲದ ಸಂಪರ್ಕಗಳನ್ನು ಆಫ್ ಮಾಡಿ, 4) ನಿಮ್ಮ ಸಾಧನದ ಸಾಫ್ಟ್ವೇರ್ ಅಪ್ಡೇಟ್ ಮಾಡಿ, ಮತ್ತು 5) ಸೆಟ್ಟಿಂಗ್ಗಳಲ್ಲಿ ಬ್ಯಾಟರಿ ಬಳಸುವ ಆ್ಯಪ್ಗಳನ್ನು ಪರಿಶೀಲಿಸಿ. ಸಮಸ್ಯೆ ಮುಂದುವರೆದರೆ, ನಿಮ್ಮ ಬ್ಯಾಟರಿ ಬದಲಾವಣೆ ಅಗತ್ಯವಾಗಬಹುದು.",
+            'te': "నేను బ్యాటరీ సమస్యలలో మీకు సహాయం చేయడానికి సంతోషిస్తున్నాను! త్వరిత బ్యాటరీ డ్రైన్ కోసం: 1) స్క్రీన్ బ్రైట్నెస్ తగ్గించండి, 2) బ్యాక్గ్రౌండ్ యాప్‌లను మూసివేయండి, 3) WiFi/GPS వంటి ఉపయోగం లేని కనెక్షన్‌లను ఆఫ్ చేయండి, 4) మీ పరికర సాఫ్ట్‌వేర్‌ను నవీకరించండి, మరియు 5) సెట్టింగ్‌లలో బ్యాటరీ తినే యాప్‌లను తనిఖీ చేయండి. సమస్య కొనసాగితే, మీ బ్యాటరీని మార్చాల్సిన అవసరం ఉండవచ్చు."
+        };
+
+        let currentLanguage = 'auto';
+        let currentTone = 'friendly and supportive';
+        let isProcessing = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+        });
+
+        function initializeApp() {
+            document.getElementById('submit-btn').disabled = false;
+            populateFAQList();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('lang-auto').addEventListener('click', () => selectLanguage('auto'));
+            document.getElementById('lang-en').addEventListener('click', () => selectLanguage('en'));
+            document.getElementById('lang-hi').addEventListener('click', () => selectLanguage('hi'));
+            document.getElementById('lang-kn').addEventListener('click', () => selectLanguage('kn'));
+            document.getElementById('lang-te').addEventListener('click', () => selectLanguage('te'));
+            
+            document.getElementById('tone-friendly').addEventListener('click', () => selectTone('friendly and supportive'));
+            document.getElementById('tone-technical').addEventListener('click', () => selectTone('technical and detailed'));
+            document.getElementById('tone-professional').addEventListener('click', () => selectTone('formal and professional'));
+            document.getElementById('tone-simplified').addEventListener('click', () => selectTone('simplified and easy to understand'));
+            document.getElementById('tone-humorous').addEventListener('click', () => selectTone('humorous and casual'));
+            
+            document.getElementById('user-input').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            document.getElementById('submit-btn').addEventListener('click', sendMessage);
+        }
+
+        function populateFAQList() {
+            const faqList = document.getElementById('faq-list');
+            faqList.innerHTML = sampleFAQs.map(faq => 
+                `<div class="faq-item p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex items-start">
+                        <div class="bg-blue-50 text-blue-700 p-2 rounded-lg mr-3">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-800 text-sm">${faq.q}</h4>
+                            <p class="text-xs text-gray-500 mt-1">Click to paste this question</p>
+                        </div>
+                    </div>
+                </div>`
+            ).join('');
+            
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const question = this.querySelector('h4').textContent;
+                    document.getElementById('user-input').value = question;
+                    document.getElementById('user-input').focus();
+                });
+            });
+        }
+
+        function selectLanguage(lang) {
+            currentLanguage = lang;
+            const langOptions = document.querySelectorAll('.lang-option');
+            langOptions.forEach(option => {
+                option.classList.remove('bg-blue-600', 'text-white');
+                option.classList.add('bg-white', 'border', 'border-gray-300');
+            });
+            
+            document.getElementById(`lang-${lang}`).classList.remove('bg-white', 'border', 'border-gray-300');
+            document.getElementById(`lang-${lang}`).classList.add('bg-blue-600', 'text-white');
+        }
+
+        function selectTone(tone) {
+            currentTone = tone;
+            const toneOptions = document.querySelectorAll('.tone-option');
+            toneOptions.forEach(option => {
+                option.classList.remove('active', 'bg-blue-600', 'text-white');
+                option.classList.add('bg-white', 'border', 'border-gray-300');
+            });
+            
+            const toneId = tone.split(' ')[0];
+            document.getElementById(`tone-${toneId}`).classList.add('active', 'bg-blue-600', 'text-white');
+        }
+
+        function detectLanguage(text) {
+            let detectedLang = 'en';
+            if (/[\u0900-\u097F]/.test(text)) {
+                detectedLang = 'hi';
+            } else if (/[\u0C80-\u0CFF]/.test(text)) {
+                detectedLang = 'kn';
+            } else if (/[\u0C00-\u0C7F]/.test(text)) {
+                detectedLang = 'te';
+            }
+            return detectedLang;
+        }
+
+        function getTargetLanguage(userQuery) {
+            if (currentLanguage === 'auto') {
+                return detectLanguage(userQuery);
+            } else {
+                return currentLanguage;
+            }
+        }
+
+        function generateResponse(userQuery, targetLanguage, tone) {
+            const query = userQuery.toLowerCase();
+            
+            if (query.includes('battery') || query.includes('charge') || query.includes('drain') || 
+                query.includes('बैटरी') || query.includes('ಬ್ಯಾಟರಿ') || query.includes('బ్యాటరీ')) {
+                return getToneBasedResponse(batteryResponses[targetLanguage] || batteryResponses['en'], tone);
+            }
+            
+            if (query.includes('turn on') || query.includes('start') || query.includes('power') || 
+                query.includes('चालू') || query.includes('ಆನ್') || query.includes('ఆన్')) {
+                return getToneBasedResponse("If your device won't turn on: 1) Charge for 30+ minutes, 2) Try different charger, 3) Force restart (hold power + volume down), 4) Check for damage.", targetLanguage, tone);
+            }
+            
+            if (query.includes('reset') || query.includes('factory') || 
+                query.includes('रीसेट') || query.includes('ರೀಸೆಟ್') || query.includes('రీసెట్')) {
+                return getToneBasedResponse("Factory reset: 1) Backup data, 2) Settings > System > Reset, 3) Select 'Factory data reset', 4) Confirm. ⚠️ Warning: Erases all data!", targetLanguage, tone);
+            }
+            
+            if (query.includes('overheat') || query.includes('hot') || query.includes('temperature') || 
+                query.includes('गर्म') || query.includes('ಬಿಸಿ') || query.includes('వేడి')) {
+                return getToneBasedResponse("Overheating solutions: 1) Close unused apps, 2) Remove case, 3) Avoid sunlight, 4) Don't use while charging, 5) Update software.", targetLanguage, tone);
+            }
+            
+            const defaultResponses = {
+                'en': `I understand you're asking about: "${userQuery}". I have information about common device issues. Could you provide more specific details?`,
+                'hi': `मैं समझता हूं कि आप पूछ रहे हैं: "${userQuery}". मेरे पास सामान्य डिवाइस समस्याओं के बारे में जानकारी है। क्या आप अधिक विशिष्ट विवरण दे सकते हैं?`,
+                'kn': `ನೀವು ಕೇಳುತ್ತಿರುವುದು: "${userQuery}". ಸಾಮಾನ್ಯ ಸಾಧನ ಸಮಸ್ಯೆಗಳ ಬಗ್ಗೆ ನನ್ನಲ್ಲಿ ಮಾಹಿತಿ ಇದೆ. ನೀವು ಹೆಚ್ಚು ನಿರ್ದಿಷ್ಟ ವಿವರಗಳನ್ನು ಒದಗಿಸಬಹುದೇ?`,
+                'te': `మీరు ఇలా అడుగుతున్నారని నేను అర్థం చేసుకున్నాను: "${userQuery}". సాధారణ పరికర సమస్యల గురించి నా వద్ద సమాచారం ఉంది. మీరు మరింత నిర్దిష్ట వివరాలను అందించగలరా?`
+            };
+            
+            return getToneBasedResponse(defaultResponses[targetLanguage] || defaultResponses['en'], tone);
+        }
+
+        function getToneBasedResponse(baseResponse, tone) {
+            switch(tone) {
+                case 'technical and detailed':
+                    return `From a technical perspective: ${baseResponse} Additional technical details: Check your device specifications and performance metrics for optimal usage.`;
+                case 'formal and professional':
+                    return `Thank you for your inquiry. ${baseResponse} We recommend consulting the official device documentation for comprehensive guidance.`;
+                case 'simplified and easy to understand':
+                    return `Here's a simple explanation: ${baseResponse} Remember: Take it step by step and don't hesitate to ask if you need clarification!`;
+                case 'humorous and casual':
+                    return `Oh, dealing with tech troubles? 😄 No worries! ${baseResponse} Tech can be tricky sometimes, but we'll figure it out together!`;
+                default:
+                    return `I'd be happy to help! ${baseResponse} Feel free to ask if you need any clarification or have additional questions!`;
+            }
+        }
+
+        async function sendMessage() {
+            if (isProcessing) return;
+            
+            const userInput = document.getElementById('user-input');
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            isProcessing = true;
+            const chatContainer = document.getElementById('chat-container');
+            const submitButton = document.getElementById('submit-btn');
+            
+            const userBubble = document.createElement('div');
+            userBubble.className = 'chat-bubble user-bubble';
+            userBubble.innerHTML = `
+                <div class="flex items-start space-x-2">
+                    <div class="flex-1">
+                        <p class="font-medium text-white text-sm">You</p>
+                        <p class="mt-1 text-sm">${message}</p>
+                    </div>
+                    <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user text-white text-xs"></i>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(userBubble);
+            
+            userInput.value = '';
+            submitButton.disabled = true;
+            
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.id = 'typing-indicator';
+            typingIndicator.innerHTML = `
+                <div class="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0 mr-2">
+                    <i class="fas fa-robot text-blue-600 text-sm"></i>
+                </div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            chatContainer.appendChild(typingIndicator);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            try {
+                const targetLanguage = getTargetLanguage(message);
+                const response = generateResponse(message, targetLanguage, currentTone);
+                
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                document.getElementById('typing-indicator').remove();
+                
+                const botBubble = document.createElement('div');
+                botBubble.className = 'chat-bubble bot-bubble';
+                
+                const languageDisplay = currentLanguage === 'auto' 
+                    ? `Detected: ${languageMap[targetLanguage]}`
+                    : `Selected: ${languageMap[targetLanguage]}`;
+                
+                botBubble.innerHTML = `
+                    <div class="flex items-start space-x-2">
+                        <div class="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-blue-600 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 text-sm">
+                                FAQ Assistant 
+                                <span class="ml-1 text-[11px] text-gray-500">
+                                    (${languageDisplay}, ${currentTone.split(' ')[0]})
+                                </span>
+                            </p>
+                            <p class="mt-1 text-gray-700 text-sm">${response}</p>
+                        </div>
+                    </div>
+                `;
+                
+                chatContainer.appendChild(botBubble);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+            } catch (error) {
+                console.error("Error generating response:", error);
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) indicator.remove();
+                
+                const errorBubble = document.createElement('div');
+                errorBubble.className = 'chat-bubble bot-bubble';
+                errorBubble.innerHTML = `
+                    <div class="flex items-start space-x-2">
+                        <div class="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-blue-600 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 text-sm">FAQ Assistant</p>
+                            <p class="mt-1 text-gray-700 text-sm">I encountered an error while processing your request. Please try again.</p>
+                        </div>
+                    </div>
+                `;
+                chatContainer.appendChild(errorBubble);
+            } finally {
+                isProcessing = false;
+                submitButton.disabled = false;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
