@@ -34,3 +34,35 @@ It supports English, Hindi, Kannada, and Telugu with different response tones (f
 ├── style.css     # Custom styling for chat bubbles, layout, and animations
 ├── data.js       # FAQ data + language-specific response templates
 ├── script.js     # App logic: language detection, tone handling, chat flow
+
+index.html
+Contains the main chatbot layout (header, chat area, language & tone controls, input box, FAQ list). 
+
+index
+
+style.css
+Handles the visual design: glassmorphism card, gradients, chat bubbles, hover effects, and animations for typing, pulse, and floating effects. 
+
+style
+
+data.js
+Stores:
+
+sampleFAQs: predefined questions & answers for the knowledge base
+
+languageMap: mapping of language codes to names
+
+Predefined responses for common device issues (battery, startup, reset, overheating) in multiple languages. 
+
+data
+
+script.js
+Manages:
+
+Global state (currentLanguage, currentTone)
+
+Event listeners for language & tone selection
+
+FAQ list rendering and click events
+
+Message sending, generating responses, and chat UI updates
