@@ -35,3 +35,31 @@ It supports English, Hindi, Kannada, and Telugu with different response tones (f
 ├── data.js       # FAQ data + language-specific response templates
 ├── script.js     # App logic: language detection, tone handling, chat flow
 
+Tech Stack
+HTML5 – structure and layout
+CSS3 + Tailwind CSS + custom styles – design and responsiveness 
+index
+Vanilla JavaScript (ES6) – app logic, language detection, tone-based responses 
+script
+Font Awesome – icons for bot, user, controls
+
+How to Use
+Ask a question
+Type your question in the input box (e.g., “How do I fix battery draining quickly?”). 
+index
+Select response language
+Choose Auto-detect or manually select English/Hindi/Kannada/Telugu from the “Response language” panel. 
+index
+Choose a tone
+Pick how you want the assistant to respond: friendly, technical, professional, simplified, or humorous. 
+index
+Use the FAQ cards
+Click any FAQ in the “Knowledge base” section to auto-fill that question into the input box. Then hit “Send”. 
+index
+Read the reply
+The assistant will reply in the chosen language and tone, based on keyword matching for topics like:
+Battery issues
+Device not turning on
+Overheating
+Factory reset steps 
+data
