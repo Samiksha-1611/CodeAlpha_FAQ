@@ -35,7 +35,7 @@ It supports English, Hindi, Kannada, and Telugu with different response tones (f
 ├── data.js       # FAQ data + language-specific response templates
 ├── script.js     # App logic: language detection, tone handling, chat flow
 
-Tech Stack
+##Tech Stack
 HTML5 – structure and layout
 CSS3 + Tailwind CSS + custom styles – design and responsiveness 
 index
@@ -43,7 +43,7 @@ Vanilla JavaScript (ES6) – app logic, language detection, tone-based responses
 script
 Font Awesome – icons for bot, user, controls
 
-How to Use
+##How to Use
 Ask a question
 Type your question in the input box (e.g., “How do I fix battery draining quickly?”). 
 index
